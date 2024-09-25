@@ -11,6 +11,7 @@
 1. 인스턴스를 대여
    대여 후, 인증키와 public ip를 보관해주세요.
 
+
 2. EC2에 Nginx 설치
    EC2에 접속 후, 아래의 커맨드를 한 번에 실행시키면 쉽게 설치할 수 있습니다.
    
@@ -21,9 +22,12 @@ sudo systemctl start nginx
 sudo systemctl enable nginx
 ````
 
+
 3. Github Actions로 리소스 배포
     Github 리포지토리의 .github/workflows 디렉토리에 YAML 파일을 생성합니다. 아래는 예시입니다.
 
+<details>
+   <summary>예시 workflow</summary>
 
 ````
 name: Deploy to Nginx
@@ -80,9 +84,13 @@ jobs:
           echo 'key를 제거합니다.'
           ssh-keygen -R $host
 ````
+</details>
 
 4. Nginx 설정파일 수정
    Nginx 설정파일은 보통 **/etc/nginx/sites-enables 디렉토리의 default 파일**입니다. 이 파일에 어떤 요청에 대해서 어떤 리소스를 반환할 것인지 설정합니다. 예를 들어, / 요청에 대하여 home.html을, /monitoring 요청에 대하여 monitoring.html을 반환한다고 가정하겠습니다. 아래는 예시입니다. **자신이 받을 요청과 요청에 대해서 반환할 리소스 디렉토리 구조와 파일명에 맞게 root의 경로와 index의 파일명을 변경해주세요.** **반드시, js 파일과 css 파일도 설정해야합니다.** 그렇지 않으면 html만 반환이 됩니다.
+
+<details>
+   <summary>예시 nginx 설정 파일</summary>
 
 ````
 server {
@@ -120,4 +128,5 @@ server {
         }
 }
 ````
+</details>
    
