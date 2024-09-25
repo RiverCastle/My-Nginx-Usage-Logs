@@ -130,3 +130,5 @@ server {
 ````
 </details>
    
+4. Nginx 사용자 추가
+  /etc/ngnix에 설정 파일에서 user 란에 ubuntu를 추가하여 static files에 ngnix가 접근할 수 있도록 허용하였다.
