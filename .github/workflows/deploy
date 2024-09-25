@@ -1,0 +1,53 @@
+name: Deploy to Nginx
+
+on:
+  workflow_dispatch: ## 수동 트리거
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Add EC2 Host Key
+        env:
+          host: ${{ secrets.REMOTE_SERVER }}
+          PEM_KEY: ${{ secrets.PEM_KEY}}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PEM_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $host >> ~/.ssh/known_hosts  
+
+      # SCP로 서버로 전송
+      - name: Deploy to server
+        env:
+          PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
+          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.REMOTE_SERVER }}
+          key: ${{ secrets.PEM_KEY }}
+          target_path: ${{ secrets.target_path }}
+        run: |
+          echo "${{ secrets.PEM_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -i private_key.pem -r src/main/* $username@$host:$target_path
+
+      - name: Nginx restart
+        env:
+          PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
+          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.REMOTE_SERVER }}
+          key: ${{ secrets.PEM_KEY }}
+        run: |
+          echo "${{ secrets.PEM_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          
+          ssh -i private_key.pem "$username@$host" "
+            sudo systemctl restart nginx
+          "
+          echo 'key를 제거합니다.'
+          ssh-keygen -R $host
