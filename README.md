@@ -109,7 +109,7 @@ server {
 
         location /monitor {
                 root /home/ubuntu/resources/templates;
-                index monitoring.html;
+                index monitor.html;
                 try_files $uri $uri/ =404;
         }
 
